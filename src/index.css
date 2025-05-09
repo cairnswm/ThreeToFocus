@@ -1,0 +1,379 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+h1 {
+  @apply text-3xl font-bold;
+}
+
+.dropdownmenu {
+  z-index: 1050;
+}
+
+@layer components {
+  .btn {
+    @apply inline-block text-base font-normal rounded-lg border border-transparent transition-colors duration-150 px-3 py-1.5;
+  }
+
+  .btn-sm {
+    @apply text-sm px-2 py-1;
+  }
+
+  .btn-lg {
+    @apply text-lg px-4 py-2;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-800;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-white hover:bg-gray-800;
+  }
+
+  .btn-success {
+    @apply bg-success text-white hover:bg-green-600;
+  }
+
+  .btn-danger {
+    @apply bg-danger text-white hover:bg-red-600;
+  }
+
+  .btn-warning {
+    @apply bg-warning text-dark hover:bg-yellow-400;
+  }
+
+  .btn-info {
+    @apply bg-info text-dark hover:bg-cyan-300;
+  }
+
+  .btn-light {
+    @apply bg-light text-dark hover:bg-gray-100 border;
+  }
+
+  .btn-dark {
+    @apply bg-dark text-white hover:bg-black;
+  }
+
+  .btn-disabled {
+    @apply opacity-65 cursor-not-allowed;
+  }
+
+  .btn-group {
+    @apply inline-flex;
+  }
+
+  .btn-group > .btn {
+    @apply -ml-px rounded-none px-3 py-1.5 mx-0;
+  }
+
+  .btn-group > .btn:first-child {
+    @apply ml-0 rounded-l-md;
+  }
+
+  .btn-group > .btn:last-child {
+    @apply rounded-r-md;
+  }
+
+  .btn-group > .btn:not(:first-child):not(:last-child) {
+    @apply rounded-none mx-0;
+  }
+
+  .alert {
+    @apply p-3 rounded border opacity-90 my-2;
+  }
+
+  .alert-primary {
+    @apply bg-primary-100 text-primary border-primary;
+  }
+
+  .alert-secondary {
+    @apply bg-secondary-100 text-secondary border-secondary;
+  }
+
+  .alert-success {
+    @apply bg-success-100 text-success border-success;
+  }
+
+  .alert-danger {
+    @apply bg-danger-100 text-danger border-danger;
+  }
+
+  .alert-warning {
+    @apply bg-warning-100 text-warning border-warning;
+  }
+
+  .alert-info {
+    @apply bg-info-100 text-info border-info;
+  }
+
+  .alert-light {
+    @apply bg-light-100 text-light border-light;
+  }
+
+  .alert-dark {
+    @apply bg-dark-100 text-dark border-dark;
+  }
+
+  .badge {
+    @apply inline-block px-3 py-2 text-sm font-medium rounded-full;
+  }
+
+  .badge-primary {
+    @apply bg-primary text-white;
+  }
+
+  .badge-secondary {
+    @apply bg-secondary text-white;
+  }
+
+  .badge-success {
+    @apply bg-success text-white;
+  }
+
+  .badge-danger {
+    @apply bg-danger text-white;
+  }
+
+  .badge-warning {
+    @apply bg-warning text-dark;
+  }
+
+  .badge-info {
+    @apply bg-info text-dark;
+  }
+
+  .badge-light {
+    @apply bg-light text-dark;
+  }
+
+  .badge-dark {
+    @apply bg-dark text-white;
+  }
+
+  .container {
+    @apply mx-auto;
+    max-width: 100%;
+    height: 100vh;
+  }
+
+  .row {
+    @apply flex flex-wrap w-full;
+  }
+
+  .col {
+    @apply flex flex-col flex-1;
+  }
+
+  .col-auto {
+    @apply flex flex-col flex-grow-0 flex-shrink-0;
+  }
+
+  .col-span-1 {
+    @apply w-1/12;
+  }
+
+  .col-span-2 {
+    @apply w-2/12;
+  }
+
+  .col-span-3 {
+    @apply w-3/12;
+  }
+
+  .col-span-4 {
+    @apply w-4/12;
+  }
+
+  .col-span-5 {
+    @apply w-5/12;
+  }
+
+  .col-span-6 {
+    @apply w-6/12;
+  }
+
+  .col-span-7 {
+    @apply w-7/12;
+  }
+
+  .col-span-8 {
+    @apply w-8/12;
+  }
+
+  .col-span-9 {
+    @apply w-9/12;
+  }
+
+  .col-span-10 {
+    @apply w-10/12;
+  }
+
+  .col-span-11 {
+    @apply w-11/12;
+  }
+
+  .col-span-12 {
+    @apply w-full;
+  }
+
+  @screen sm {
+    .sm\:col-span-1 {
+      @apply col-span-1;
+    }
+    .sm\:col-span-2 {
+      @apply col-span-2;
+    }
+    .sm\:col-span-3 {
+      @apply col-span-3;
+    }
+    .sm\:col-span-4 {
+      @apply col-span-4;
+    }
+    .sm\:col-span-5 {
+      @apply col-span-5;
+    }
+    .sm\:col-span-6 {
+      @apply col-span-6;
+    }
+    .sm\:col-span-7 {
+      @apply col-span-7;
+    }
+    .sm\:col-span-8 {
+      @apply col-span-8;
+    }
+    .sm\:col-span-9 {
+      @apply col-span-9;
+    }
+    .sm\:col-span-10 {
+      @apply col-span-10;
+    }
+    .sm\:col-span-11 {
+      @apply col-span-11;
+    }
+    .sm\:col-span-12 {
+      @apply col-span-12;
+    }
+  }
+
+  @screen md {
+    .md\:col-span-1 {
+      @apply col-span-1;
+    }
+    .md\:col-span-2 {
+      @apply col-span-2;
+    }
+    .md\:col-span-3 {
+      @apply col-span-3;
+    }
+    .md\:col-span-4 {
+      @apply col-span-4;
+    }
+    .md\:col-span-5 {
+      @apply col-span-5;
+    }
+    .md\:col-span-6 {
+      @apply col-span-6;
+    }
+    .md\:col-span-7 {
+      @apply col-span-7;
+    }
+    .md\:col-span-8 {
+      @apply col-span-8;
+    }
+    .md\:col-span-9 {
+      @apply col-span-9;
+    }
+    .md\:col-span-10 {
+      @apply col-span-10;
+    }
+    .md\:col-span-11 {
+      @apply col-span-11;
+    }
+    .md\:col-span-12 {
+      @apply col-span-12;
+    }
+  }
+
+  @screen lg {
+    .lg\:col-span-1 {
+      @apply col-span-1;
+    }
+    .lg\:col-span-2 {
+      @apply col-span-2;
+    }
+    .lg\:col-span-3 {
+      @apply col-span-3;
+    }
+    .lg\:col-span-4 {
+      @apply col-span-4;
+    }
+    .lg\:col-span-5 {
+      @apply col-span-5;
+    }
+    .lg\:col-span-6 {
+      @apply col-span-6;
+    }
+    .lg\:col-span-7 {
+      @apply col-span-7;
+    }
+    .lg\:col-span-8 {
+      @apply col-span-8;
+    }
+    .lg\:col-span-9 {
+      @apply col-span-9;
+    }
+    .lg\:col-span-10 {
+      @apply col-span-10;
+    }
+    .lg\:col-span-11 {
+      @apply col-span-11;
+    }
+    .lg\:col-span-12 {
+      @apply col-span-12;
+    }
+  }
+
+  @screen xl {
+    .xl\:col-span-1 {
+      @apply col-span-1;
+    }
+    .xl\:col-span-2 {
+      @apply col-span-2;
+    }
+    .xl\:col-span-3 {
+      @apply col-span-3;
+    }
+    .xl\:col-span-4 {
+      @apply col-span-4;
+    }
+    .xl\:col-span-5 {
+      @apply col-span-5;
+    }
+    .xl\:col-span-6 {
+      @apply col-span-6;
+    }
+    .xl\:col-span-7 {
+      @apply col-span-7;
+    }
+    .xl\:col-span-8 {
+      @apply col-span-8;
+    }
+    .xl\:col-span-9 {
+      @apply col-span-9;
+    }
+    .xl\:col-span-10 {
+      @apply col-span-10;
+    }
+    .xl\:col-span-11 {
+      @apply col-span-11;
+    }
+    .xl\:col-span-12 {
+      @apply col-span-12;
+    }
+  }
+}
