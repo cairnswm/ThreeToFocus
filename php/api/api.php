@@ -155,16 +155,24 @@ function getUserFocus($config)
         'focus_area', (
             SELECT JSON_ARRAYAGG(
                 JSON_OBJECT(
-                    'id', t.id,
-                    'title', t.title,
-                    'status', t.status,
-                    'type', t.task_type,
-                    'project_id', t.project_id,
-                    'feature_id', t.feature_id
+                    'id', fa.id,
+                    'tasks', (
+                        SELECT JSON_ARRAYAGG(
+                            JSON_OBJECT(
+                                'id', t.id,
+                                'title', t.title,
+                                'status', t.status,
+                                'type', t.task_type,
+                                'project_id', t.project_id,
+                                'feature_id', t.feature_id
+                            )
+                        )
+                        FROM tasks t
+                        WHERE t.focus_area_id = fa.id
+                    )
                 )
             )
-            FROM tasks t
-            JOIN focus_areas fa ON t.focus_area_id = fa.id
+            FROM focus_areas fa
             WHERE fa.user_id = ?
         ),
         'projects', (
@@ -211,8 +219,7 @@ function getUserFocus($config)
             JOIN projects p ON pu.project_id = p.id
             WHERE pu.user_id = ?
         )
-    ) AS data
-;
+    ) AS data;
 ";
 
     $rows = executeSQL($sql, [$id,$id], ["JSON" => ["data"]]);
