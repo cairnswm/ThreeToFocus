@@ -163,6 +163,7 @@ function getUserFocus($config)
                                 'title', t.title,
                                 'status', t.status,
                                 'type', t.task_type,
+                                'description', t.description,
                                 'project_id', t.project_id,
                                 'feature_id', t.feature_id
                             )
@@ -197,6 +198,7 @@ function getUserFocus($config)
                                 'title', t3.title,
                                 'status', t3.status,
                                 'type', t3.task_type,
+                                'description', t3.description,
                                 'feature_id', t3.feature_id,
                                 'focus_area_id', t3.focus_area_id
                             )
@@ -259,7 +261,8 @@ function getAdminProjects($config)
                                 'id', t3.id,
                                 'title', t3.title,
                                 'status', t3.status,
-                                'type', t3.task_type,                                
+                                'type', t3.task_type,       
+                                'description', t3.description,                         
                                 'feature_id', t3.feature_id,
                                 'focus_area_id', t3.focus_area_id
                             )
