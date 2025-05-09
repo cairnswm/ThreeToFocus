@@ -27,8 +27,6 @@ function getLimitAndOrderBy()
 
 function SelectData($config, $id = null)
 {
-    global $gapiconn;
-
     if (!isset($config['select']) || !$config['select']) {
         die("Select operation not allowed");
     }
@@ -41,37 +39,19 @@ function SelectData($config, $id = null)
     $types = "";
     $params = [];
 
-    // Handle the case where select is a function name
     if (is_string($config['select'])) {
         if (function_exists($config['select'])) {
-            // Call the function with the config and id
             return call_user_func($config['select'], $config, $id);
         } else {
-            // Handle the case where select is a raw SQL statement
             if (!isset($config['where'])) {
                 $config['where'] = [];
             }
             $info = buildQuery($config);
-
             $query = $info['query'];
-            $types = $info['types'];
             $params = $info['params'];
-
-            // Execute query with database connection
-            $stmt = $gapiconn->prepare($query);
-            if (!empty($types) && !empty($params)) {
-                $stmt->bind_param($types, ...$params);
-            }
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $rows = [];
-            while ($row = $result->fetch_assoc()) {
-                $rows[] = $row;
-            }
-            $stmt->close();
+            $rows = executeSQL($query, $params);
         }
     } elseif (is_array($config['select'])) {
-        // Handle the case where select is an array of fields
         $fields = implode(", ", $config['select']);
         $where = "1=1";
         if (isset($config['where'])) {
@@ -90,42 +70,21 @@ function SelectData($config, $id = null)
         }
         $query = "SELECT $fields FROM " . $config['tablename'] . " WHERE $where " . $config['orderBy'] . " " . $config['limit'];
 
+        $params = [];
         if (isset($config['where']) && count($config['where']) > 0) {
-            $types = str_repeat('s', count($config['where']));
             $params = array_values($config['where']);
             if ($id) {
-                $types .= 's';
                 $params[] = $id;
             }
         } elseif ($id) {
-            $types = 's';
             $params[] = $id;
         }
-
-        // Execute query with database connection
-        $stmt = $gapiconn->prepare($query);
-        if (!empty($types) && !empty($params)) {
-            $stmt->bind_param($types, ...$params);
-        }
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $rows = [];
-        while ($row = $result->fetch_assoc()) {
-            $rows[] = $row;
-        }
-        $stmt->close();
+        $rows = executeSQL($query, $params);
     }
-
-    // echo "Query: $query\n";
-    // echo "Types: $types\n";
-    // echo "Params: " . json_encode($params) . "\n";
 
     if (isset($config['afterselect']) && function_exists($config['afterselect'])) {
         $rows = call_user_func($config['afterselect'], $config, $rows);
     }
-
-    //  var_dump($rows);
-    
 
     return $rows;
 }
