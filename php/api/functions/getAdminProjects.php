@@ -28,36 +28,68 @@ function getAdminProjects($config)
                     'tasks', (
                         SELECT JSON_ARRAYAGG(
                             JSON_OBJECT(
-                                'id', t3.id,
-                                'title', t3.title,
-                                'status', t3.status,
-                                'type', t3.task_type,       
-                                'description', t3.description,                         
-                                'feature_id', t3.feature_id,
-                                'focus_area_id', t3.focus_area_id,
-                                'settings', t3.settings
+                                'id', t.id,
+                                'title', t.title,
+                                'status', t.status,
+                                'type', t.task_type,
+                                'description', t.description,
+                                'feature_id', t.feature_id,
+                                'focus_area_id', t.focus_area_id,
+                                'settings', t.settings
                             )
                         )
-                        FROM tasks t3
-                        WHERE t3.project_id = p.id
+                        FROM tasks t
+                        WHERE t.project_id = p.id
                     ),
                     'users', (
                         SELECT JSON_ARRAYAGG(
                             JSON_OBJECT(
-                                'id', pu2.id,
-                                'user_id', pu2.user_id,
-                                'settings', pu2.settings
+                                'user_id', pu.user_id,
+                                'settings', pu.settings
                             )
                         )
-                        FROM project_users pu2
-                        WHERE pu2.project_id = p.id
+                        FROM project_users pu
+                        WHERE pu.project_id = p.id
                     )
                 )
             )
-            FROM projects p
-            WHERE p.owner_user_id = ?
+            FROM project_users pu_main
+            JOIN projects p ON pu_main.project_id = p.id
+            WHERE pu_main.user_id = ?
+        ),
+        'teams', (
+            SELECT JSON_ARRAYAGG(
+                JSON_OBJECT(
+                    'id', t.id,
+                    'name', t.name,
+                    'settings', t.settings,
+                    'users', (
+                        SELECT JSON_ARRAYAGG(
+                            JSON_OBJECT(
+                                'user_id', tu.user_id,
+                                'settings', tu.settings
+                            )
+                        )
+                        FROM team_users tu
+                        WHERE tu.team_id = t.id
+                    ),
+                    'projects', (
+                        SELECT JSON_ARRAYAGG(
+                            JSON_OBJECT(
+                                'project_id', tp.project_id
+                            )
+                        )
+                        FROM team_projects tp
+                        WHERE tp.team_id = t.id
+                    )
+                )
+            )
+            FROM team_users tu_main
+            JOIN teams t ON tu_main.team_id = t.id
+            WHERE tu_main.user_id = ?
         )
-    ) AS data;";
-    $rows = executeSQL($sql, [$id], ["JSON" => ["data"]]);
-    return $rows[0]['data']['projects'] ?? [];
+    ) AS data;
+;";
+    $rows = executeSQL($sql, [$id, $id], ["JSON" => ["data"]]);
+    return $rows[0]['data'] ?? [];
 }
