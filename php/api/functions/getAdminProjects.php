@@ -67,6 +67,9 @@ function getAdminProjects($config)
                         SELECT JSON_ARRAYAGG(
                             JSON_OBJECT(
                                 'user_id', tu.user_id,
+                                'email', tu.email,
+                                'role', tu.role,
+                                'status', tu.status,
                                 'settings', tu.settings
                             )
                         )
