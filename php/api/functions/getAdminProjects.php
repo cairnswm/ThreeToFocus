@@ -76,10 +76,13 @@ function getAdminProjects($config)
                     'projects', (
                         SELECT JSON_ARRAYAGG(
                             JSON_OBJECT(
-                                'project_id', tp.project_id
+                                'project_id', tp.project_id,
+                                'name', p.name,
+                                'settings', p.settings
                             )
                         )
                         FROM team_projects tp
+                        JOIN projects p ON tp.project_id = p.id
                         WHERE tp.team_id = t.id
                     )
                 )
@@ -89,7 +92,7 @@ function getAdminProjects($config)
             WHERE tu_main.user_id = ?
         )
     ) AS data;
-;";
+";
     $rows = executeSQL($sql, [$id, $id], ["JSON" => ["data"]]);
     return $rows[0]['data'] ?? [];
 }
