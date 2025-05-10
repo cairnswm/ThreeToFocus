@@ -13,11 +13,13 @@ function getAdminProjects($config)
                 JSON_OBJECT(
                     'id', p.id,
                     'name', p.name,
+                    'settings', p.settings,
                     'features', (
                         SELECT JSON_ARRAYAGG(
                             JSON_OBJECT(
                                 'id', f.id,
-                                'name', f.name
+                                'name', f.name,
+                                'settings', f.settings
                             )
                         )
                         FROM features f
@@ -32,7 +34,8 @@ function getAdminProjects($config)
                                 'type', t3.task_type,       
                                 'description', t3.description,                         
                                 'feature_id', t3.feature_id,
-                                'focus_area_id', t3.focus_area_id
+                                'focus_area_id', t3.focus_area_id,
+                                'settings', t3.settings
                             )
                         )
                         FROM tasks t3
@@ -42,7 +45,8 @@ function getAdminProjects($config)
                         SELECT JSON_ARRAYAGG(
                             JSON_OBJECT(
                                 'id', pu2.id,
-                                'user_id', pu2.user_id
+                                'user_id', pu2.user_id,
+                                'settings', pu2.settings
                             )
                         )
                         FROM project_users pu2

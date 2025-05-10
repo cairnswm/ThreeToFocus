@@ -11,6 +11,7 @@ function getUserTeams($config)
         JSON_OBJECT(
             'id', t.id,
             'name', t.name,
+            'settings', t.settings,
             'user_ids', (
                 SELECT JSON_ARRAYAGG(tu2.user_id)
                 FROM team_users tu2
@@ -22,6 +23,7 @@ function getUserTeams($config)
                         'id', p.id,
                         'name', p.name,
                         'owner_user_id', p.owner_user_id,
+                        'settings', p.settings,
                         'created_at', p.created_at,
                         'modified_at', p.modified_at
                     )

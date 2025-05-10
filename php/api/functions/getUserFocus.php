@@ -12,6 +12,7 @@ function getUserFocus($config)
             SELECT JSON_ARRAYAGG(
                 JSON_OBJECT(
                     'id', fa.id,
+                    'settings', fa.settings,
                     'tasks', (
                         SELECT JSON_ARRAYAGG(
                             JSON_OBJECT(
@@ -21,7 +22,8 @@ function getUserFocus($config)
                                 'type', t.task_type,
                                 'description', t.description,
                                 'project_id', t.project_id,
-                                'feature_id', t.feature_id
+                                'feature_id', t.feature_id,
+                                'settings', t.settings
                             )
                         )
                         FROM tasks t
@@ -37,6 +39,7 @@ function getUserFocus($config)
                 JSON_OBJECT(
                     'id', p.id,
                     'name', p.name,
+                    'settings', p.settings,
                     'features', (
                         SELECT JSON_ARRAYAGG(
                             JSON_OBJECT(
@@ -56,7 +59,8 @@ function getUserFocus($config)
                                 'type', t3.task_type,
                                 'description', t3.description,
                                 'feature_id', t3.feature_id,
-                                'focus_area_id', t3.focus_area_id
+                                'focus_area_id', t3.focus_area_id,
+                                'settings', t3.settings
                             )
                         )
                         FROM tasks t3
