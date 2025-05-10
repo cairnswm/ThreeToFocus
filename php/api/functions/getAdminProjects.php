@@ -78,7 +78,22 @@ function getAdminProjects($config)
                             JSON_OBJECT(
                                 'project_id', tp.project_id,
                                 'name', p.name,
-                                'settings', p.settings
+                                'settings', p.settings,
+                                'feature_count', (
+                                    SELECT COUNT(*) FROM features f WHERE f.project_id = p.id
+                                ),
+                                'task_counts', (
+                                    SELECT JSON_OBJECT(
+                                        'total', COUNT(*),
+                                        'done', SUM(CASE WHEN t.status = 'done' THEN 1 ELSE 0 END),
+                                        'not_done', SUM(CASE WHEN t.status != 'done' THEN 1 ELSE 0 END),
+                                        'in_progress', SUM(CASE WHEN t.status = 'in_progress' THEN 1 ELSE 0 END),
+                                        'next', SUM(CASE WHEN t.status = 'next' THEN 1 ELSE 0 END),
+                                        'empty', SUM(CASE WHEN t.status IS NULL OR t.status = '' THEN 1 ELSE 0 END)
+                                    )
+                                    FROM tasks t
+                                    WHERE t.project_id = p.id
+                                )
                             )
                         )
                         FROM team_projects tp
