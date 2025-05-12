@@ -2,9 +2,11 @@
 
 function getUserTeams($config)
 {
+    global $mysqli; // assuming you use global $mysqli
     $id = $config["where"]["user_id"] ?? null;
     if (!$id) return [];
 
+    // Step 1: Get teams the user is in
     $sql = "
         SELECT 
             t.id AS team_id,
@@ -13,40 +15,65 @@ function getUserTeams($config)
             t.description,
             t.settings,
             t.created_at,
-            t.modified_at,
-            (
-                SELECT JSON_ARRAYAGG(
-                    JSON_OBJECT(
-                        'id', tu.id,
-                        'user_id', tu.user_id,
-                        'email', tu.email,
-                        'role', tu.role,
-                        'invite_status', tu.invite_status,
-                        'settings', tu.settings
-                    )
-                )
-                FROM team_users tu
-                WHERE tu.team_id = t.id
-            ) AS users,
-            (
-                SELECT JSON_ARRAYAGG(
-                    JSON_OBJECT(
-                        'id', p.id,
-                        'name', p.name,
-                        'description', p.description,
-                        'settings', p.settings
-                    )
-                )
-                FROM projects p
-                WHERE p.team_id = t.id
-            ) AS projects
+            t.modified_at
         FROM team_users tu
         JOIN teams t ON tu.team_id = t.id
         WHERE tu.user_id = ?
     ";
+    $teams = executeSQL($sql, [$id]);
 
-    return executeSQL($sql, [$id], ["JSON" => ["users", "projects"]]);
+    if (!$teams) return [];
+
+    $teamIds = array_column($teams, 'team_id');
+
+    // Step 2: Get all team_users for those teams
+    $placeholders = implode(',', array_fill(0, count($teamIds), '?'));
+    $sql_users = "
+        SELECT 
+            tu.team_id,
+            tu.id,
+            tu.user_id,
+            tu.email,
+            tu.role,
+            tu.invite_status,
+            tu.settings
+        FROM team_users tu
+        WHERE tu.team_id IN ($placeholders)
+    ";
+    $users = executeSQL($sql_users, $teamIds);
+
+    // Step 3: Get all projects for those teams
+    $sql_projects = "
+        SELECT 
+            p.team_id,
+            p.id,
+            p.name,
+            p.description,
+            p.settings
+        FROM projects p
+        WHERE p.team_id IN ($placeholders)
+    ";
+    $projects = executeSQL($sql_projects, $teamIds);
+
+    // Step 4: Assemble data
+    $teamsIndexed = [];
+    foreach ($teams as $team) {
+        $team['users'] = [];
+        $team['projects'] = [];
+        $teamsIndexed[$team['team_id']] = $team;
+    }
+
+    foreach ($users as $user) {
+        $teamsIndexed[$user['team_id']]['users'][] = $user;
+    }
+
+    foreach ($projects as $project) {
+        $teamsIndexed[$project['team_id']]['projects'][] = $project;
+    }
+
+    return array_values($teamsIndexed);
 }
+
 
 function getUserFocus($config)
 {
