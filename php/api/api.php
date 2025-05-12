@@ -229,8 +229,8 @@ function afterCreateTeam($config, $data, $newRecord) {
     $user_id = $userid;
 
     // Add the user to the team
-    $sql = "INSERT INTO team_users (team_id, user_id, role) VALUES (?, ?, ?)";
-    executeSQL($sql, [$team_id, $user_id, "Admin"]);
+    $sql = "INSERT INTO team_users (team_id, user_id, role, invite_status) VALUES (?, ?, ?, ?)";
+    executeSQL($sql, [$team_id, $user_id, "Admin", "Owner"]);
 
     $sql = "INSERT INTO team_audit_log (team_id, changed_by, change_type, new_data) VALUES (?, ?, 'create', ?)";    
     executeSQL($sql, [$team_id, $user_id, json_encode($record)]);
@@ -246,8 +246,8 @@ function afterCreateProject($config, $data, $newRecord) {
     $user_id = $userid;
 
     // Add the user to the project
-    $sql = "INSERT INTO project_users (project_id, user_id, role) VALUES (?, ?, ?)";
-    executeSQL($sql, [$project_id, $user_id, "Admin"]);
+    $sql = "INSERT INTO project_users (project_id, user_id, role, invite_status) VALUES (?, ?, ?, ?)";
+    executeSQL($sql, [$project_id, $user_id, "Admin", "Owner"]);
 
 
     $sql = "INSERT INTO project_audit_log (project_id, changed_by, change_type, new_data) VALUES (?, ?, 'create', ?)";
