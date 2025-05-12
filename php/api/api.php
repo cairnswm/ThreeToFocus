@@ -5,9 +5,8 @@ include_once dirname(__FILE__) . "/../gapiv2/dbconn.php";
 include_once dirname(__FILE__) . "/../gapiv2/v2apicore.php";
 include_once dirname(__FILE__) . "/../utils.php";
 include_once dirname(__FILE__) . "/../security/security.config.php";
-include_once dirname(__FILE__) . "/functions/getUserFocus.php";
-include_once dirname(__FILE__) . "/functions/getAdminProjects.php";
-include_once dirname(__FILE__) . "/functions/getUserTeams.php";
+
+include_once dirname(__FILE__) . "/functions/user_functions.php";
 
 // Get authentication details
 $appid = getAppId();
@@ -27,162 +26,178 @@ $token = getToken();
 
 $threeToFocusConfig = [
     "users" => [
-        "tablename" => "projects",
-        "key" => "user_id",
-        "select" => ["id", "username", "is_admin", "created_at", "modified_at"],
-        "create" => ["username", "is_admin"],
-        "update" => ["username", "is_admin"],
+        "tablename" => "tasks",
+        "key" => "id",
+        "select" => ["id"],
+        "create" => false,
+        "update" => false,
         "delete" => false,
         "subkeys" => [
-            "focus_areas" => [
-                "tablename" => "focus_areas",
-                "key" => "user_id",
-                "select" => ["id", "user_id", "settings", "created_at", "modified_at"]
-            ],
             "tasks" => [
                 "tablename" => "tasks",
-                "key" => "assigned_user_id",
-                "select" => ["id", "project_id", "feature_id", "focus_area_id", "assigned_user_id", "title", "description", "task_type", "status", "settings", "created_at", "modified_at"]
+                "key" => "assigned_to",
+                "select" => ["id", "project_id", "feature_id", "assigned_to", "title", "description", "task_type", "status", "settings", "created_at", "modified_at"]
             ],
             "project_users" => [
                 "tablename" => "project_users",
                 "key" => "user_id",
-                "select" => ["id", "project_id", "user_id", "settings", "created_at", "modified_at"]
+                "select" => ["id", "project_id", "user_id", "email", "role", "invite_status", "settings", "created_at", "modified_at"]
             ],
             "focus" => [
-                "tablename" => "focus_areas",
-                "key" => "user_id",
-                "select" => "getUserFocus",
+                "tablename" => "tasks",
+                "key" => "assigned_to",
+                "select" => "getUserFocus"
             ],
             "admin" => [
-                "tablename" => "focus_areas",
+                "tablename" => "projects",
                 "key" => "user_id",
-                "select" => "getAdminProjects",
+                "select" => "getAdminProjects"
             ],
             "teams" => [
                 "tablename" => "teams",
                 "key" => "user_id",
-                "select" => "getUserTeams",
+                "select" => "getUserTeams"
+            ],
+            "organizations" => [
+                "tablename" => "organizations",
+                "key" => "user_id",
+                "select" => "getUserOrganizations"
             ],
         ]
     ],
-
-    "focus_areas" => [
-        "tablename" => "focus_areas",
+    "organization_users" => [
+        "tablename" => "organization_users",
         "key" => "id",
-        "select" => ["id", "user_id", "settings", "created_at", "modified_at"],
-        "create" => ["user_id", "settings"],
-        "update" => ["user_id", "settings"],
-        "delete" => false,
-        "subkeys" => [
-            "tasks" => [
-                "tablename" => "tasks",
-                "key" => "focus_area_id",
-                "select" => ["id", "project_id", "feature_id", "focus_area_id", "assigned_user_id", "title", "description", "task_type", "status", "settings", "created_at", "modified_at"]
-            ]
-        ]
+        "select" => ["id", "organization_id", "user_id", "email", "role", "invite_status", "settings", "created_at", "modified_at"],
+        "create" => ["organization_id", "user_id", "email", "role", "invite_status", "settings"],
+        "update" => ["role", "invite_status", "settings"],
+        "delete" => true
     ],
-
-    "projects" => [
-        "tablename" => "projects",
+    "organizations" => [
+        "tablename" => "organizations",
         "key" => "id",
-        "select" => ["id", "name", "owner_user_id", "settings", "created_at", "modified_at"],
-        "create" => ["name", "owner_user_id", "settings"],
-        "update" => ["name", "owner_user_id", "settings"],
-        "delete" => false,
+        "select" => ["id", "name", "description", "settings", "created_at", "modified_at"],
+        "create" => ["name", "description", "settings"],
+        "update" => ["name", "description", "settings"],
+        "delete" => true,
         "subkeys" => [
-            "features" => [
-                "tablename" => "features",
-                "key" => "project_id",
-                "select" => ["id", "project_id", "name", "settings", "created_at", "modified_at"]
+            "organization_users" => [
+                "tablename" => "organization_users",
+                "key" => "organization_id",
+                "select" => ["id", "organization_id", "user_id", "email", "role", "invite_status", "settings", "created_at", "modified_at"]
             ],
-            "tasks" => [
-                "tablename" => "tasks",
-                "key" => "project_id",
-                "select" => ["id", "project_id", "feature_id", "focus_area_id", "assigned_user_id", "title", "description", "task_type", "status", "settings", "created_at", "modified_at"]
-            ],
-            "project_users" => [
-                "tablename" => "project_users",
-                "key" => "project_id",
-                "select" => ["id", "project_id", "user_id", "settings", "created_at", "modified_at"]
+            "teams" => [
+                "tablename" => "teams",
+                "key" => "organization_id",
+                "select" => ["id", "organization_id", "name", "description", "settings", "created_at", "modified_at"]
             ]
         ]
     ],
-
-    "features" => [
-        "tablename" => "features",
+    "team_users" => [
+        "tablename" => "team_users",
         "key" => "id",
-        "select" => ["id", "project_id", "name", "settings", "created_at", "modified_at"],
-        "create" => ["project_id", "name", "settings"],
-        "update" => ["project_id", "name", "settings"],
-        "delete" => false,
-        "subkeys" => [
-            "tasks" => [
-                "tablename" => "tasks",
-                "key" => "feature_id",
-                "select" => ["id", "project_id", "feature_id", "focus_area_id", "assigned_user_id", "title", "description", "task_type", "status", "settings", "created_at", "modified_at"]
-            ]
-        ]
+        "select" => ["id", "team_id", "user_id", "email", "role", "invite_status", "settings", "created_at", "modified_at"],
+        "create" => ["team_id", "user_id", "email", "role", "invite_status", "settings"],
+        "update" => ["role", "invite_status", "settings"],
+        "delete" => true
     ],
-
-    "tasks" => [
-        "tablename" => "tasks",
-        "key" => "id",
-        "select" => ["id", "project_id", "feature_id", "focus_area_id", "assigned_user_id", "title", "description", "task_type", "status", "settings", "created_at", "modified_at"],
-        "create" => ["project_id", "feature_id", "focus_area_id", "assigned_user_id", "title", "description", "task_type", "status", "settings"],
-        "update" => ["project_id", "feature_id", "focus_area_id", "assigned_user_id", "title", "description", "task_type", "status", "settings"],
-        "delete" => false,
-        "subkeys" => []
-    ],
-
     "project_users" => [
         "tablename" => "project_users",
         "key" => "id",
-        "select" => ["id", "project_id", "user_id", "settings", "created_at"],
-        "create" => ["project_id", "user_id", "settings"],
-        "update" => ["project_id", "user_id", "settings"],
-        "delete" => false,
-        "subkeys" => []
+        "select" => ["id", "project_id", "user_id", "email", "role", "invite_status", "settings", "created_at", "modified_at"],
+        "create" => ["project_id", "user_id", "email", "role", "invite_status", "settings"],
+        "update" => ["role", "invite_status", "settings"],
+        "delete" => true
     ],
     "teams" => [
         "tablename" => "teams",
         "key" => "id",
-        "select" => ["id", "name", "settings", "created_at", "modified_at"],
-        "create" => ["name", "settings"],
-        "update" => ["name", "settings"],
-        "delete" => false,
+        "select" => ["id", "organization_id", "name", "description", "settings", "created_at", "modified_at"],
+        "create" => ["organization_id", "name", "description", "settings"],
+        "update" => ["name", "description", "settings"],
+        "delete" => true,
         "subkeys" => [
             "team_users" => [
                 "tablename" => "team_users",
                 "key" => "team_id",
-                "select" => ["id", "team_id", "user_id", "role", "settings", "created_at", "modified_at"]
+                "select" => ["id", "team_id", "user_id", "email", "role", "invite_status", "settings", "created_at", "modified_at"]
             ],
-            "team_projects" => [
-                "tablename" => "team_projects",
+            "projects" => [
+                "tablename" => "projects",
                 "key" => "team_id",
-                "select" => ["id", "team_id", "project_id", "settings", "created_at", "modified_at"]
+                "select" => ["id", "team_id", "name", "description", "settings", "created_at", "modified_at"]
+            ],
+            "audit_log" => [
+                "tablename" => "team_audit_log",
+                "key" => "team_id",
+                "select" => ["id", "team_id", "changed_by", "change_type", "old_data", "new_data", "created_at"]
             ]
         ]
     ],
-
-    "team_users" => [
-        "tablename" => "team_users",
+    "projects" => [
+        "tablename" => "projects",
         "key" => "id",
-        "select" => ["id", "team_id", "user_id", "role", "settings", "created_at", "modified_at"],
-        "create" => ["team_id", "user_id", "role", "settings"],
-        "update" => ["team_id", "user_id", "role", "settings"],
-        "delete" => false,
-        "subkeys" => []
+        "select" => ["id", "team_id", "name", "description", "settings", "created_at", "modified_at"],
+        "create" => ["team_id", "name", "description", "settings"],
+        "update" => ["name", "description", "settings"],
+        "delete" => true,
+        "subkeys" => [
+            "project_users" => [
+                "tablename" => "project_users",
+                "key" => "project_id",
+                "select" => ["id", "project_id", "user_id", "email", "role", "invite_status", "settings", "created_at", "modified_at"]
+            ],
+            "features" => [
+                "tablename" => "features",
+                "key" => "project_id",
+                "select" => ["id", "project_id", "name", "description", "settings", "created_at", "modified_at"]
+            ],
+            "tasks" => [
+                "tablename" => "tasks",
+                "key" => "project_id",
+                "select" => ["id", "project_id", "feature_id", "title", "description", "task_type", "status", "assigned_to", "settings", "created_at", "modified_at"]
+            ],
+            "audit_log" => [
+                "tablename" => "project_audit_log",
+                "key" => "project_id",
+                "select" => ["id", "project_id", "changed_by", "change_type", "old_data", "new_data", "created_at"]
+            ]
+        ]
     ],
-
-    "team_projects" => [
-        "tablename" => "team_projects",
+    "features" => [
+        "tablename" => "features",
         "key" => "id",
-        "select" => ["id", "team_id", "project_id", "settings", "created_at", "modified_at"],
-        "create" => ["team_id", "project_id", "settings"],
-        "update" => ["team_id", "project_id", "settings"],
-        "delete" => false,
-        "subkeys" => []
+        "select" => ["id", "project_id", "name", "description", "settings", "created_at", "modified_at"],
+        "create" => ["project_id", "name", "description", "settings"],
+        "update" => ["name", "description", "settings"],
+        "delete" => true,
+        "subkeys" => [
+            "tasks" => [
+                "tablename" => "tasks",
+                "key" => "feature_id",
+                "select" => ["id", "project_id", "feature_id", "title", "description", "task_type", "status", "assigned_to", "settings", "created_at", "modified_at"]
+            ],
+            "audit_log" => [
+                "tablename" => "feature_audit_log",
+                "key" => "feature_id",
+                "select" => ["id", "feature_id", "changed_by", "change_type", "old_data", "new_data", "created_at"]
+            ]
+        ]
+    ],
+    "tasks" => [
+        "tablename" => "tasks",
+        "key" => "id",
+        "select" => ["id", "project_id", "feature_id", "title", "description", "task_type", "status", "assigned_to", "settings", "created_at", "modified_at"],
+        "create" => ["project_id", "feature_id", "title", "description", "task_type", "status", "assigned_to", "settings"],
+        "update" => ["title", "description", "task_type", "status", "assigned_to", "settings"],
+        "delete" => true,
+        "subkeys" => [
+            "audit_log" => [
+                "tablename" => "task_audit_log",
+                "key" => "task_id",
+                "select" => ["id", "task_id", "changed_by", "change_type", "old_status", "new_status", "old_data", "new_data", "created_at"]
+            ]
+        ]
     ]
 ];
 
