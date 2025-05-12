@@ -144,7 +144,12 @@ $threeToFocusConfig = [
                 "tablename" => "team_audit_log",
                 "key" => "team_id",
                 "select" => ["id", "team_id", "changed_by", "change_type", "old_data", "new_data", "created_at"]
-            ]
+            ],
+            "focus" => [
+                "tablename" => "tasks",
+                "key" => "team_id",
+                "select" => "getTeamFocus"
+            ],
         ]
     ],
     "projects" => [
@@ -376,4 +381,31 @@ function afterUpdateOrganization($config, $newRecord) {
 
     // Return the new record
     return [$config, $newRecord];
+}
+
+
+function getTeamFocus($config)
+{
+    global $userid;
+    $user_id = $userid;
+    $team_id = $config["where"]["team_id"] ?? null;
+    if (!$user_id || !$team_id) return [];
+
+    $sql = "
+        SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'id', t.id,
+                'title', t.title,
+                'description', t.description,
+                'project_id', t.project_id,
+                'feature_id', t.feature_id,
+                'settings', t.settings
+            )
+        ) AS focus_tasks
+        FROM tasks t
+        JOIN projects p ON t.project_id = p.id
+        WHERE t.assigned_to = ? AND t.status = 'Focus' AND p.team_id = ?
+    ";
+
+    return executeSQL($sql, [$user_id, $team_id], ["JSON" => ["focus_tasks"]]);
 }
