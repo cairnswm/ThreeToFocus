@@ -22,56 +22,7 @@ function getUserTeams($config)
     ";
     $teams = executeSQL($sql, [$id]);
 
-    if (!$teams) return [];
-
-    $teamIds = array_column($teams, 'team_id');
-
-    // Step 2: Get all team_users for those teams
-    $placeholders = implode(',', array_fill(0, count($teamIds), '?'));
-    $sql_users = "
-        SELECT 
-            tu.team_id,
-            tu.id,
-            tu.user_id,
-            tu.email,
-            tu.role,
-            tu.invite_status,
-            tu.settings
-        FROM team_users tu
-        WHERE tu.team_id IN ($placeholders)
-    ";
-    $users = executeSQL($sql_users, $teamIds);
-
-    // Step 3: Get all projects for those teams
-    $sql_projects = "
-        SELECT 
-            p.team_id,
-            p.id,
-            p.name,
-            p.description,
-            p.settings
-        FROM projects p
-        WHERE p.team_id IN ($placeholders)
-    ";
-    $projects = executeSQL($sql_projects, $teamIds);
-
-    // Step 4: Assemble data
-    $teamsIndexed = [];
-    foreach ($teams as $team) {
-        $team['users'] = [];
-        $team['projects'] = [];
-        $teamsIndexed[$team['team_id']] = $team;
-    }
-
-    foreach ($users as $user) {
-        $teamsIndexed[$user['team_id']]['users'][] = $user;
-    }
-
-    foreach ($projects as $project) {
-        $teamsIndexed[$project['team_id']]['projects'][] = $project;
-    }
-
-    return array_values($teamsIndexed);
+   return $teams;
 }
 
 
