@@ -46,6 +46,32 @@ function getUserFocus($config)
                 )
                 FROM tasks t
                 WHERE t.assigned_to = ? AND t.status = 'Focus'
+            ) AS focus_tasks
+    ";
+
+    return executeSQL($sql, [$user_id], ["JSON" => ["focus_tasks"]]);
+}
+
+function getUserPlanning($config)
+{
+    $user_id = $config["where"]["user_id"] ?? null;
+    if (!$user_id) return [];
+
+    $sql = "
+        SELECT 
+            (
+                SELECT JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'id', t.id,
+                        'title', t.title,
+                        'description', t.description,
+                        'project_id', t.project_id,
+                        'feature_id', t.feature_id,
+                        'settings', t.settings
+                    )
+                )
+                FROM tasks t
+                WHERE t.assigned_to = ? AND t.status = 'Focus'
             ) AS focus_tasks,
             (
                 SELECT JSON_ARRAYAGG(
@@ -70,13 +96,13 @@ function getUserFocus($config)
                 WHERE p.team_id IN (
                     SELECT tu.team_id FROM team_users tu WHERE tu.user_id = ?
                 )
-            ) AS next_tasks_by_project
+            ) AS next_tasks
     ";
 
-    return executeSQL($sql, [$user_id, $user_id], ["JSON" => ["focus_tasks", "next_tasks_by_project"]]);
+    return executeSQL($sql, [$user_id, $user_id], ["JSON" => ["focus_tasks", "next_tasks"]]);
 }
 
-function getUserProjectsWithDetails($config)
+function getUserProjects($config)
 {
     $user_id = $config["where"]["user_id"] ?? null;
     if (!$user_id) return [];
@@ -99,22 +125,8 @@ function getUserProjectsWithDetails($config)
                             )
                         )
                         FROM features f WHERE f.project_id = p.id
-                    ),
-                    'tasks', (
-                        SELECT JSON_ARRAYAGG(
-                            JSON_OBJECT(
-                                'id', t.id,
-                                'title', t.title,
-                                'status', t.status,
-                                'description', t.description,
-                                'task_type', t.task_type,
-                                'feature_id', t.feature_id,
-                                'assigned_to', t.assigned_to,
-                                'settings', t.settings
-                            )
-                        )
-                        FROM tasks t WHERE t.project_id = p.id
                     )
+                    
                 )
             ) AS projects
         FROM projects p

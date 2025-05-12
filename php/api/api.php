@@ -50,7 +50,7 @@ $threeToFocusConfig = [
             ],
             "focus" => [
                 "tablename" => "tasks",
-                "key" => "assigned_to",
+                "key" => "user_id",
                 "select" => "getUserFocus"
             ],
             "admin" => [
@@ -67,6 +67,11 @@ $threeToFocusConfig = [
                 "tablename" => "organizations",
                 "key" => "user_id",
                 "select" => "getUserOrganizations"
+            ],
+            "projects" => [
+                "tablename" => "projects",
+                "key" => "user_id",
+                "select" => "getUserProjects"
             ],
         ]
     ],
