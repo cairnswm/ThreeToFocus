@@ -186,3 +186,57 @@ function getUserOrganizations($config)
 
     return executeSQL($sql, [$user_id], ["JSON" => ["organizations"]]);
 }
+
+function getProjectSummary($config)
+{
+    $project_id = $config["where"]["project_id"] ?? null;
+    if (!$project_id) return [];
+
+    $sql = "
+        SELECT 
+            (
+                SELECT JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'id', pu.id,
+                        'user_id', pu.user_id,
+                        'email', pu.email,
+                        'role', pu.role,
+                        'invite_status', pu.invite_status,
+                        'settings', pu.settings
+                    )
+                )
+                FROM project_users pu
+                WHERE pu.project_id = ?
+            ) AS users,
+            (
+                SELECT JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'id', f.id,
+                        'name', f.name,
+                        'description', f.description,
+                        'settings', f.settings
+                    )
+                )
+                FROM features f
+                WHERE f.project_id = ?
+            ) AS features,
+            (
+                SELECT JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'id', t.id,
+                        'title', t.title,
+                        'description', t.description,
+                        'status', t.status,
+                        'task_type', t.task_type,
+                        'feature_id', t.feature_id,
+                        'assigned_to', t.assigned_to,
+                        'settings', t.settings
+                    )
+                )
+                FROM tasks t
+                WHERE t.project_id = ?
+            ) AS tasks
+    ";
+
+    return executeSQL($sql, [$project_id, $project_id, $project_id], ["JSON" => ["users", "features", "tasks"]]);
+}

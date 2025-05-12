@@ -176,6 +176,11 @@ $threeToFocusConfig = [
                 "tablename" => "project_audit_log",
                 "key" => "project_id",
                 "select" => ["id", "project_id", "changed_by", "change_type", "old_data", "new_data", "created_at"]
+            ],
+            "details" => [
+                "tablename" => "project_details",
+                "key" => "project_id",
+                "select" => "getProjectSummary"
             ]
         ]
     ],
