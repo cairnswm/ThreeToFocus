@@ -16,6 +16,7 @@ include_once dirname(__FILE__) . "/functions/user_functions.php";
 // Get authentication details
 $appid = getAppId();
 $token = getToken();
+$userid = 1493;
 
 // if (validateJwt($token, false) == false) {
 //     http_response_code(401);
@@ -126,6 +127,8 @@ $threeToFocusConfig = [
         "create" => ["organization_id", "name", "description", "settings"],
         "update" => ["name", "description", "settings"],
         "delete" => true,
+        "aftercreate" => "afterCreateTeam",
+        "afterupdate" => "afterUpdateTeam",
         "subkeys" => [
             "team_users" => [
                 "tablename" => "team_users",
@@ -151,6 +154,8 @@ $threeToFocusConfig = [
         "create" => ["team_id", "name", "description", "settings"],
         "update" => ["name", "description", "settings"],
         "delete" => true,
+        "aftercreate" => "afterCreateProject",
+        "afterupdate" => "afterUpdateProject",
         "subkeys" => [
             "project_users" => [
                 "tablename" => "project_users",
@@ -181,6 +186,8 @@ $threeToFocusConfig = [
         "create" => ["project_id", "name", "description", "settings"],
         "update" => ["name", "description", "settings"],
         "delete" => true,
+        "aftercreate" => "afterCreateFeature",
+        "afterupdate" => "afterUpdateFeature",
         "subkeys" => [
             "tasks" => [
                 "tablename" => "tasks",
@@ -201,6 +208,8 @@ $threeToFocusConfig = [
         "create" => ["project_id", "feature_id", "title", "description", "task_type", "status", "assigned_to", "settings"],
         "update" => ["title", "description", "task_type", "status", "assigned_to", "settings"],
         "delete" => true,
+        "aftercreate" => "afterCreateTask",
+        "afterupdate" => "afterUpdateTask",
         "subkeys" => [
             "audit_log" => [
                 "tablename" => "task_audit_log",
@@ -212,3 +221,157 @@ $threeToFocusConfig = [
 ];
 
 runAPI($threeToFocusConfig);
+
+function afterCreateTeam($config, $data, $newRecord) {
+    global $userid;
+    var_dump("CONFIG",$config);
+    var_dump("DATA",$data);
+    var_dump("NEW RECORD",$newRecord);
+    $record = $newRecord[0];
+    $team_id = $record["id"];
+    $user_id = $userid;
+
+    // Add the user to the team
+    $sql = "INSERT INTO team_users (team_id, user_id, role) VALUES (?, ?, ?)";
+    executeSQL($sql, [$team_id, $user_id, "Admin"]);
+
+    $sql = "INSERT INTO team_audit_log (team_id, changed_by, change_type, new_data) VALUES (?, ?, 'create', ?)";    
+    executeSQL($sql, [$team_id, $user_id, json_encode($record)]);
+
+    // Return the new record
+    return [$config, $data, $newRecord];
+}
+
+function afterCreateProject($config, $data, $newRecord) {
+    global $userid;
+    $record = $newRecord[0];
+    $project_id = $record["id"];
+    $user_id = $userid;
+
+    // Add the user to the project
+    $sql = "INSERT INTO project_users (project_id, user_id, role) VALUES (?, ?, ?)";
+    executeSQL($sql, [$project_id, $user_id, "Admin"]);
+
+
+    $sql = "INSERT INTO project_audit_log (project_id, changed_by, change_type, new_data) VALUES (?, ?, 'create', ?)";
+    executeSQL($sql, [$record['id'], $user_id, json_encode($record)]);
+
+    // Return the new record
+    return [$config, $data, $newRecord];
+}
+
+function afterUpdateTeam($config, $newRecord) {
+    global $userid;
+    $record = $newRecord[0];
+    $team_id = $record["id"];
+    $user_id = $userid;
+
+    // Update the team audit log
+    $sql = "INSERT INTO team_audit_log (team_id, changed_by, change_type, new_data) VALUES (?, ?, 'update', ?)";
+    executeSQL($sql, [$team_id, $user_id, json_encode($record)]);
+
+    // Return the new record
+    return [$config, $newRecord];
+}
+
+function afterUpdateProject($config, $newRecord) {
+    global $userid;
+    $record = $newRecord[0];
+    $project_id = $record["id"];
+    $user_id = $userid;
+
+    // Update the project audit log
+    $sql = "INSERT INTO project_audit_log (project_id, changed_by, change_type, new_data) VALUES (?, ?, 'update', ?)";
+    executeSQL($sql, [$project_id, $user_id, json_encode($record)]);
+
+    // Return the new record
+    return [$config, $newRecord];
+}
+
+function afterCreateTask($config, $data, $newRecord) {
+    global $userid;
+    $record = $newRecord[0];
+    $task_id = $record["id"];
+    $user_id = $userid;
+
+    // Update the task audit log
+    $sql = "INSERT INTO task_audit_log (task_id, changed_by, change_type, new_data) VALUES (?, ?, 'create', ?)";
+    executeSQL($sql, [$task_id, $user_id, json_encode($record)]);
+
+    // Return the new record
+    return [$config, $data, $newRecord];
+}
+
+function afterUpdateTask($config, $newRecord) {
+    global $userid;
+    $record = $newRecord[0];
+    $task_id = $record["id"];
+    $user_id = $userid;
+
+    // Update the task audit log
+    $sql = "INSERT INTO task_audit_log (task_id, changed_by, change_type, new_data) VALUES (?, ?, 'update', ?)";
+    executeSQL($sql, [$task_id, $user_id, json_encode($record)]);
+
+    // Return the new record
+    return [$config, $newRecord];
+}
+
+function afterCreateFeature($config, $data, $newRecord) {
+    global $userid;
+    $record = $newRecord[0];
+    $feature_id = $record["id"];
+    $user_id = $userid;
+
+    // Update the feature audit log
+    $sql = "INSERT INTO feature_audit_log (feature_id, changed_by, change_type, new_data) VALUES (?, ?, 'create', ?)";
+    executeSQL($sql, [$feature_id, $user_id, json_encode($record)]);
+
+    // Return the new record
+    return [$config, $data, $newRecord];
+}
+
+function afterUpdateFeature($config, $newRecord) {
+    global $userid;
+    $record = $newRecord[0];
+    $feature_id = $record["id"];
+    $user_id = $userid;
+
+    // Update the feature audit log
+    $sql = "INSERT INTO feature_audit_log (feature_id, changed_by, change_type, new_data) VALUES (?, ?, 'update', ?)";
+    executeSQL($sql, [$feature_id, $user_id, json_encode($record)]);
+
+    // Return the new record
+    return [$config, $newRecord];
+}
+
+function afterCreateOrganization($config, $data, $newRecord) {
+    global $userid;
+    $record = $newRecord[0];
+    $organization_id = $record["id"];
+    $user_id = $userid;
+
+    // Add the user to the organization
+    $sql = "INSERT INTO organization_users (organization_id, user_id, role) VALUES (?, ?, ?)";
+    executeSQL($sql, [$organization_id, $user_id, "Admin"]);
+
+    // Update the organization audit log
+    $sql = "INSERT INTO organization_audit_log (organization_id, changed_by, change_type, new_data) VALUES (?, ?, 'create', ?)";
+    executeSQL($sql, [$organization_id, $user_id, json_encode($record)]);
+
+    // Return the new record
+    return [$config, $data, $newRecord];
+}
+
+function afterUpdateOrganization($config, $newRecord) {
+    global $userid;
+    $record = $newRecord[0];
+    $organization_id = $record["id"];
+    $user_id = $userid;
+
+    // Update the organization audit log
+    $sql = "INSERT INTO organization_audit_log (organization_id, changed_by, change_type, new_data) VALUES (?, ?, 'update', ?)";
+    executeSQL($sql, [$organization_id, $user_id, json_encode($record)]);
+
+    // Return the new record
+    return [$config, $newRecord];
+}

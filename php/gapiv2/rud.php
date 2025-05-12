@@ -252,7 +252,10 @@ function UpdateData($config, $id, $data)
 
     // Execute after update function if it exists
     if (isset($config['afterupdate']) && function_exists($config['afterupdate'])) {
-        $updated_record = call_user_func($config['afterupdate'], $config, $updated_record);
+        $res = call_user_func($config['afterupdate'], $config, $updated_record);
+        if (is_array($res)) {
+            $updated_record = $res[1];
+        }
     }
 
     return $updated_record;
