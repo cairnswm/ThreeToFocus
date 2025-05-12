@@ -2,7 +2,6 @@
 
 function getUserTeams($config)
 {
-    global $mysqli; // assuming you use global $mysqli
     $id = $config["where"]["user_id"] ?? null;
     if (!$id) return [];
 

@@ -224,9 +224,6 @@ runAPI($threeToFocusConfig);
 
 function afterCreateTeam($config, $data, $newRecord) {
     global $userid;
-    var_dump("CONFIG",$config);
-    var_dump("DATA",$data);
-    var_dump("NEW RECORD",$newRecord);
     $record = $newRecord[0];
     $team_id = $record["id"];
     $user_id = $userid;
